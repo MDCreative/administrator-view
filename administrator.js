@@ -1,62 +1,92 @@
 var app = angular.module("app", ["firebase"]);
 
-function hash(pass)
-{
-    var MAX_PASSWORD_LENGTH = 16;
-    
-    var charset = "qwertyaQWERTYUIOPZXCVBNMLKJHGFDSAsdfghzxcvbnuiopjklm1324657809_";
-    var css = 63;
-    
-    var target = new Array(MAX_PASSWORD_LENGTH + 1).join('0').split('').map(parseFloat)
-    var j = pass.length;
-    
-    var sum = j, tmp = 0, mod = 0;
-    
-    for(var i = 0; i < MAX_PASSWORD_LENGTH || i < j; i++)
-    {
-        mod = i % MAX_PASSWORD_LENGTH;
-                
-        tmp = (i >= j) ? (charset[(7 * i) % css]) : (pass[i]);
-        sum = (sum + chrfind(tmp, charset) + 1) % css;
-        
-        target[mod] = charset[(sum + target[mod]) % css];
-    }
-    
-    //target[MAX_PASSWORD_LENGTH] = '\0';
-    
-    return target.join('');
-}
- 
- 
-function chrfind(needle, haystack, start)
-{
-    if(typeof(start) === 'undefined')
-        start = 0;
-    
-    while (haystack[start]) if (haystack[start++] == needle) return start - 1;
-	return -1;
-}
+var baseURL = "https://interactive-lecture.firebaseio.com/Test/f26b5/triad/";
 
-app.controller("AddCtrl", function($scope, $firebase) 
+
+
+
+
+var pie = new d3pie("pie", {
+  data: {
+    content: [ { label: "", value: 0.001 } ]
+  },
+  size: {
+    pieInnerRadius: "60%"
+  }
+});
+
+app.controller("pieCtrl", function($scope, $firebase)
 {
-	$scope.addLecturer = function()
-	{
-	    //console.log($scope.name + ", " +  $scope.pass);
-		$scope.mainRef = new Firebase("https://interactive-lecture.firebaseio.com/Test/Lecturer/");
-		
-		var sync = $firebase($scope.mainRef);
-		
-		var lecturer = {
-			name: $scope.name,
-			password: hash($scope.pass)
-		};
-		
-		sync.$push(lecturer).then(function(v)
+    $scope.mainRef = new Firebase(baseURL);
+    
+    /*$scope.mainRef.on('child_added', function(snapshot)
+    {
+        console.log("hi")
+        $scope.updatePie();    
+    });*/
+    
+    $scope.updatePie = function()
+    {
+		$scope.mainRef.once('value', function(snapshot)
 		{
-		    console.log("hi " + v);
+		    var triadCount = 0;
+		    var sums = {
+		        x : 0,
+		        y : 0,
+		        z : 0
+		    };
+		    
+		   snapshot.forEach(function(triad)
+		   {
+		       var triadValue = triad.val();
+		    
+		       if(triadValue.time < (new Date() - 100000*5)) 
+		       {
+		            sums.x += triadValue.x;
+		            sums.y += triadValue.y;
+		            sums.z += triadValue.z;
+		       
+		            triadCount++;
+		       }
+		   });
+		   
+		   var pieData = [
+		       { label: "Too Fast",    value: sums.x / triadCount, color: '#9b59b6' },
+    		   { label: "Enlightened", value: sums.y / triadCount, color: '#2980b9' },
+    		   { label: "Confused",    value: sums.z / triadCount, color: '#2ecc71' }
+		    ];
+		    
+		    pie.updateProp("data.content", pieData);
 		});
 		
-		//$.extend(data, lastCoords);
-		//$scope.mainRef.push(lecturer);
-	};
+		/*sync.$asObject().$loaded().then(function(data)
+		{
+		    console.log(data.x);
+		
+    		var pieData = [
+    		    { label: "Enlightened", value: data.x },
+    		    { label: "Too Fast",    value: data.y },
+    		    { label: "Confused",    value: data.z }
+    		];
+    		
+    		pie.updateProp("data.content", pieData);
+		});*/
+		
+		
+    };
+    
+    $scope.updatePie();
 });
+
+/*$(function() {
+  var num = 4;
+  $("#addData").on("click", function() {
+    data.push({
+      label: num.toString(),
+      value: Math.floor(Math.random() * 10) + 1
+    });
+
+    pie.updateProp("data.content", data);
+    num++;
+  });
+});*/

@@ -12,33 +12,16 @@
 		<!-- AngularFire -->
 		<script src="https://cdn.firebase.com/libs/angularfire/0.9.2/angularfire.min.js"></script>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-		<script type="text/javascript" src="administrator.js"></script>
+	
+		<script type="text/javascript" src="d3.min.js"></script>
+		<script type="text/javascript" src="d3pie.min.js"></script>
 		
-		<style>
-		    .ui.form 
-		    {
-		        max-width:400px;
-		        padding:50px;
-		    }
-		    
-		    .ui.primary.button
-		    {
-		        margin-top:20px;
-		    }
-		    
-		    
-		</style>
+		
 	</head>
-	<body>
-		<div class="ui form" ng-controller="AddCtrl">
-			<input type="text" name="lecturerName" ng-model="name" placeholder="Name"/></br>
-			<input type="password" name="lecturerPass" ng-model="pass" placeholder="Password"/></br>
-			<!--<br />-->
-			<div class="ui primary button" ng-click="addLecturer()">Register</div>
-			<div class="ui secondary button" ng-click="loginLecturer()">Sign in</div>
-			<i class="ui inline mini loader active"></i>
-			<i class="checkmark icon"></i>
-     
-		</div>
+	<body ng-controller="pieCtrl">
+	    <div id="pie">
+	        
+	    </div>
+	    <script type="text/javascript" src="administrator.js"></script>
 	</body>
 </html>
